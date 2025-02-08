@@ -7,21 +7,18 @@ def FunctionToApproximate(x):
     return np.exp(x)
 
 def EvaluatePolynomial(x, coefficients):
-    """Evaluates a polynomial at point x using given coefficients."""
     result = 0
     for i in range(coefficients.shape[0]):
         result += coefficients[i] * x**i
     return result
 
 def FindMaxDeviationPoint(coefficients, start, end, function, num_points=1000):
-    """Finds the point where the maximum deviation occurs between the function and the polynomial."""
     x_values = np.linspace(start, end, num_points)
     deviations = np.array([np.abs(function(x) - EvaluatePolynomial(x, coefficients)) for x in x_values])
     max_index = np.argmax(deviations)
     return x_values[max_index]
 
 def ComputeRemezApproximation(start, end, degree, function):
-    """Computes the best polynomial approximation using the Remez algorithm."""
     points = np.sort(np.random.rand(degree + 2) * (end - start) + start)
     vander_matrix = np.column_stack((np.vander(points, degree + 1), np.array([(-1)**i for i in range(degree + 2)])))
     function_values = np.array([function(x) for x in points])

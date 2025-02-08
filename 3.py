@@ -15,15 +15,15 @@ def GeneratePoints(start, end, num_points, uniform=True):
         return np.linspace(start, end, num_points, dtype=np.float64)
     return np.cos(np.linspace(0, np.pi, num_points)) * (end - start) / 2 + (end + start) / 2
 
-def VandermondeInterpolation(num_points, start, end, function, tolerance, uniform=True):
+def VandermondeInterpolation(num_points, start, end, function, precision, uniform=True):
     points = GeneratePoints(start, end, num_points, uniform)
     vander_matrix = np.vander(points, increasing=True)
     coefficients = np.linalg.solve(vander_matrix, function(points))
     
     error = np.max(np.abs(np.polyval(coefficients[::-1], points) - function(points)))
-    print("Vandermonde Interpolation:", coefficients if error < tolerance else "Failed to meet tolerance")
+    print("Vandermonde Interpolation:", coefficients if error < precision else "Can't achieve the required precision")
 
-def LagrangeInterpolation(num_points, start, end, function, tolerance, uniform=True):
+def LagrangeInterpolation(num_points, start, end, function, precision, uniform=True):
     points = GeneratePoints(start, end, num_points, uniform)
     result = Polynomial([0])
     
@@ -32,12 +32,12 @@ def LagrangeInterpolation(num_points, start, end, function, tolerance, uniform=T
         result += basis * function(x_i) / np.prod(x_i - np.delete(points, i))
     
     error = np.max(np.abs(result(points) - function(points)))
-    print("Lagrange Interpolation:", result if error < tolerance else "Failed to meet tolerance")
+    print("Lagrange Interpolation:", result if error < precision else "Can't achieve the required precision")
 
 def GramIntegral(n):
     return 2 / (n + 1) if n % 2 == 0 else 0
 
-def OrthogonalPolynomialInterpolation(num_points, start, end, function, tolerance, uniform=True):
+def OrthogonalPolynomialInterpolation(num_points, start, end, function, precision, uniform=True):
     points = GeneratePoints(start, end, num_points, uniform)
     gram_matrix = np.array([[GramIntegral(i + j) for j in range(num_points)] for i in range(num_points)])
     L_inv = np.linalg.inv(np.linalg.cholesky(gram_matrix))
@@ -50,7 +50,7 @@ def OrthogonalPolynomialInterpolation(num_points, start, end, function, toleranc
     
     result = sum(coeff * poly for coeff, poly in zip(coefficients, orthogonal_basis))
     error = np.max(np.abs(result(points) - function(points)))
-    print("Orthogonal Polynomial Interpolation:", result if error < tolerance else "Failed to meet tolerance")
+    print("Orthogonal Polynomial Interpolation:", result if error < precision else "Can't achieve the required precision")
 
 if METHOD == "vandermonde":
     VandermondeInterpolation(NUM_NODES, START_POINT, END_POINT, AbsoluteFunction, PRECISION, uniform=False)
